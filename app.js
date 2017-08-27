@@ -12,6 +12,11 @@ const index = require('./routes/index');
 const app = express();
 require('./config/passport')(passport); // pass passport for configuration
 
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/', {
+  useMongoClient: true
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
