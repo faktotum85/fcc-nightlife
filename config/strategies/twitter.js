@@ -1,7 +1,7 @@
 const passport = require('passport');
 const url = require('url');
 const TwitterStrategy = require('passport-twitter').Strategy;
-const User = require('../models/user');
+const User = require('../../models/user');
 
 module.exports = function() {
   passport.use(new TwitterStrategy({
