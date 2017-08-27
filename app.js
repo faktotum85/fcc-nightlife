@@ -8,15 +8,25 @@ const passport = require('passport');
 const session = require('express-session');
 
 const index = require('./routes/index');
+const users = require('./routes/users');
 
 const app = express();
 require('./config/passport')(passport); // pass passport for configuration
 
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/nightlife', {
   useMongoClient: true
 });
+
+app.use(session({
+  saveUninitialized: true,
+  resave: true,
+  secret: process.env.SESSION_SECRET || 'secrets, secrets'
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,19 +39,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(session({
-  saveUninitialized: true,
-  resave: true,
-  secret: process.env.SESSION_SECRET || 'secrets, secrets'
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', require('./routes/users')(passport));
+app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

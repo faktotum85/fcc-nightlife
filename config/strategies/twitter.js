@@ -1,5 +1,4 @@
 const passport = require('passport');
-const url = require('url');
 const TwitterStrategy = require('passport-twitter').Strategy;
 const User = require('../../models/user');
 
@@ -8,11 +7,27 @@ module.exports = function() {
     consumerKey: process.env.TWITTER_KEY,
     consumerSecret: process.env.TWITTER_SECRET,
     callbackURL: process.env.TWITTER_CALLBACK,
-    passReqToCallback: true
   },
-  (req, token, tokenSecret, profile, done) => {
-    User.findOrCreate({twitterId: profile.id }, (err, user) => {
-      return done(err, user);
+  (token, tokenSecret, profile, done) => {
+    User.findOne({'twitter.id': profile.id}, (err, user) => {
+      if (err) {
+        return done(err);
+      }
+      if (!user) {
+        const newUser = new User();
+        newUser.twitter.id = profile.id;
+        newUser.twitter.username = profile.username;
+        newUser.twitter.displayName = profile.displayName;
+
+        newUser.save((err) => {
+          if (err) {
+            return done(err);
+          }
+          return done(null, newUser);
+        });
+      } else {
+        return done(null, user);
+      }
     });
   }));
 };

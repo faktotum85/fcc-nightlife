@@ -4,17 +4,15 @@ const passport = require('passport');
 
 /* GET users listing. */
 
-module.exports = function(passport) {
+router.get('/twitter', passport.authenticate('twitter'));
 
-  router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
-  });
+router.get('/twitter/callback',
+  passport.authenticate('twitter', { successRedirect: '/',
+                                     failureRedirect: '/login' }));
 
-  router.get('/twitter', passport.authenticate('twitter'));
+router.get('/logout', (req, res) => {
+ req.logout();
+ res.redirect('/');
+});
 
-  router.get('/twitter/callback',
-    passport.authenticate('twitter', { successRedirect: '/',
-                                       failureRedirect: '/login' }));
-
-  return router;
-}
+module.exports = router;
