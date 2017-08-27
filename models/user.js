@@ -5,20 +5,20 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.statics.findOrCreate = (query, done) => {
-  User.find(query, (err, user) => {
+  User.findOne(query, (err, user) => {
     if (err) {
       return done(err);
     }
     if (!user) {
-      user = new User(query);
-      user.save((err) => {
+      const newUser = new User(query);
+      newUser.save((err) => {
         if (err) {
           return done(err);
         }
-        return done(err, user);
+        return done(null, newUser);
       });
     } else {
-      return done(err, user);
+      return done(null, user);
     }
   });
 }
