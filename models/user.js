@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   twitterId: String
 });
 
-const User = mongoose.model('User', userSchema);
-
-User.statics.findOrCreate = (query, done) => {
+UserSchema.statics.findOrCreate = (query, done) => {
   User.find(query, (err, user) => {
     if (err) {
       return done(err);
@@ -24,5 +22,7 @@ User.statics.findOrCreate = (query, done) => {
     }
   });
 }
+
+const User = mongoose.model('User', UserSchema);
 
 module.exports = User;
