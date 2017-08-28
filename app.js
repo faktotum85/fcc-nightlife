@@ -8,6 +8,7 @@ const passport = require('passport');
 const session = require('express-session');
 
 const index = require('./routes/index');
+const search = require('./routes/search');
 const users = require('./routes/users');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/search', search);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
