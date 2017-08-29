@@ -1,18 +1,38 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <a href="/users/twitter">Sign in with Twitter</a>
-    <% if (user) { %>
-      <p>
-        logged in
-      </p>
-      <a href="/users/logout">Log out again</a>
-    <% } %>
+    <nav>
+      <ul class="wrapper">
+        <li>
+          <% if (user) { %>
+            <a href="/users/logout">Sign out</a>
+          <% } else { %>
+            <a href="/users/twitter">Sign in with Twitter</a>
+          <% } %>
+        </li>
+      </ul>
+    </nav>
+    <div class="wrapper">
+      <h1>Plans tonight?</h1>
+      <i class="fa fa-map-marker fa-5x" aria-hidden="true"></i>
+      <i class="fa fa-taxi fa-5x" aria-hidden="true"></i>
+      <i class="fa fa-glass fa-5x" aria-hidden="true"></i>
+      <h2>
+        See which bars are hoppin' tonight and RSVP ahead of time! <br />
+        Remember: take a cab and drink responsibly.
+      </h2>
+      <form action="/search" method="get">
+        <input type="text" name="location" placeholder="Your location" required>
+        <button type="submit" name="button">Check it out</button>
+      </form>
+      
+    </div>
   </body>
 </html>
