@@ -1,4 +1,5 @@
 const request = require('request');
+const async = require('async');
 const Token = require('../models/token');
 
 module.exports = (req, res) => {
@@ -48,9 +49,40 @@ function fetchResults(token, req, res, giveUp) {
         });
       }
     } else {
-      return res.send(body);
+      let businesses = JSON.parse(body).businesses;
+      async.map(businesses, appendReview.bind(null, token), (err, results) => {
+        if (err) {
+          return res.sendStatus(500)
+        }
+        return res.render('index', {
+          title: `Nightlife in ${req.query.location}`,
+          user: req.user,
+          results: results
+        });
+      });
     }
   });
+}
+
+function appendReview(token, item, callback) {
+  // use token.access_token to fetch a review for each item (and filter out unneeded results)
+  console.log('starting to fetch snippet');
+  request
+    .get({
+      url: `https://api.yelp.com/v3/businesses/${item.id}/reviews`,
+      headers: {
+        'Authorization' : 'Bearer ' + token.access_token
+      }
+    }, (err, response, body) => {
+        if (err || response.statusCode !== 200) {
+          return callback(null, item);
+        } else {
+          const json = JSON.parse(body);
+          item.review = (json.reviews && (json.reviews.length > 0)) ? json.reviews[0].text : "";
+          return callback(null, item);
+        }
+    }
+  );
 }
 
 function getToken(req, res, callback) {

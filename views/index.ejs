@@ -26,13 +26,24 @@
       <i class="fa fa-glass fa-5x" aria-hidden="true"></i>
       <h2>
         See which bars are hoppin' tonight and RSVP ahead of time! <br />
-        Remember: take a cab and drink responsibly.
+        Remember: take a cab and drink responsibly. <br />
+        Powered by the Yelp API!
       </h2>
       <form action="/search" method="get">
         <input type="text" name="location" placeholder="Your location" required>
-        <button type="submit" name="button">Check it out</button>
+        <button type="submit">Check it out</button>
       </form>
-      
+      <ul id="resultsList">
+        <% for (var i=0; i<results.length; i++) { %>
+          <li>
+            <img src="<%= results[i].image_url %>" alt="<%= results[i].name %>">
+            <h4><%= results[i].name %></h4>
+            <p>
+              <%= results[i].review %>
+            </p>
+          </li>
+        <% } %>
+      </ul>
     </div>
   </body>
 </html>
