@@ -8,17 +8,6 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <nav>
-      <ul class="wrapper">
-        <li>
-          <% if (user) { %>
-            <a href="/users/logout">Sign out</a>
-          <% } else { %>
-            <a href="/users/twitter">Sign in with Twitter</a>
-          <% } %>
-        </li>
-      </ul>
-    </nav>
     <div class="wrapper">
       <h1>Plans tonight?</h1>
       <i class="fa fa-map-marker fa-5x" aria-hidden="true"></i>
@@ -34,13 +23,29 @@
         <button type="submit">Check it out</button>
       </form>
       <ul id="resultsList">
-        <% for (var i=0; i<results.length; i++) { %>
+        <% for (var i=0; i<businesses.length; i++) { %>
           <li>
-            <img src="<%= results[i].image_url %>" alt="<%= results[i].name %>">
-            <h4><%= results[i].name %></h4>
-            <p>
-              <%= results[i].review %>
-            </p>
+            <img src="<%= businesses[i].image_url %>" alt="<%= businesses[i].name %>">
+            <div class="barInfo">
+              <header>
+                <h3><%= businesses[i].name %></h4>
+                <a class="btn <% if (businesses[i].meGoing) {%> going<%}%>" href="/attend/<%= businesses[i].id %>"><%= businesses[i].going.length %> going</a>
+              </header>
+              <div class="barDetails">
+                <span class="rating">
+                  <% for (var j=1; j<=5; j++) { %>
+                    <% if (j < businesses[i].rating) { %>
+                      <i class="fa fa-star" aria-hidden="true"></i>
+                    <% } else if (j - 0.5 === businesses[i].rating){ %>
+                      <i class="fa fa-star-half-o" aria-hidden="true"></i>
+                    <% } else { %>
+                      <i class="fa fa-star-o" aria-hidden="true"></i>
+                    <% } %>
+                  <% } %><br class="lg-hide"/>
+                (<%= businesses[i].review_count %> reviews)</span>
+                <span class="price"><%= businesses[i].price %></span>
+              </div>
+            </div>
           </li>
         <% } %>
       </ul>

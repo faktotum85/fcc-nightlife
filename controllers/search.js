@@ -1,6 +1,7 @@
 const request = require('request');
 const async = require('async');
 const Token = require('../models/token');
+const Bar = require('../models/bar');
 
 module.exports = (req, res) => {
 
@@ -13,7 +14,6 @@ module.exports = (req, res) => {
       console.log(`no token - fetching one`);
       return getToken(req, res, fetchResults);
     } else {
-      console.log(`using existing token`);
       return fetchResults(token, req, res, false);
     }
   });
@@ -32,8 +32,12 @@ function fetchResults(token, req, res, giveUp) {
   }, (err, response, body) => {
     if (err) {
       console.error(err);
-    }
-    if (JSON.parse(body).error) {
+      return res.render('index', {
+        title: `Nightlife in ${req.query.location}`,
+        user: req.user,
+        results: []
+      });
+    } else if (JSON.parse(body).error) {
       if (giveUp) {
         console.log('giving up');
         return res.sendStatus(500);
@@ -49,40 +53,33 @@ function fetchResults(token, req, res, giveUp) {
         });
       }
     } else {
-      let businesses = JSON.parse(body).businesses;
-      async.map(businesses, appendReview.bind(null, token), (err, results) => {
-        if (err) {
-          return res.sendStatus(500)
+      let businesses = JSON.parse(body).businesses.map(business => {
+        return {
+          id: business.id,
+          name: business.name,
+          image_url: business.image_url,
+          rating: business.rating,
+          review_count: business.review_count,
+          price: business.price
         }
+      });
+      async.map(businesses, appendCount.bind(null, req.user), (err, results) => {
         return res.render('index', {
           title: `Nightlife in ${req.query.location}`,
           user: req.user,
-          results: results
+          businesses: results
         });
       });
     }
   });
 }
 
-function appendReview(token, item, callback) {
-  // use token.access_token to fetch a review for each item (and filter out unneeded results)
-  console.log('starting to fetch snippet');
-  request
-    .get({
-      url: `https://api.yelp.com/v3/businesses/${item.id}/reviews`,
-      headers: {
-        'Authorization' : 'Bearer ' + token.access_token
-      }
-    }, (err, response, body) => {
-        if (err || response.statusCode !== 200) {
-          return callback(null, item);
-        } else {
-          const json = JSON.parse(body);
-          item.review = (json.reviews && (json.reviews.length > 0)) ? json.reviews[0].text : "";
-          return callback(null, item);
-        }
-    }
-  );
+function appendCount(user, item, callback) {
+  Bar.findOne({yelpid: item.id}, (err, bar) => {
+    item.going = bar ? bar.going : [];
+    item.meGoing = user && item.going.indexOf(user.twitter.username) > -1;
+    return callback(null, item);
+  });
 }
 
 function getToken(req, res, callback) {

@@ -9,7 +9,6 @@ const session = require('express-session');
 
 const index = require('./routes/index');
 const search = require('./routes/search');
-const users = require('./routes/users');
 
 const app = express();
 require('./config/passport')(passport); // pass passport for configuration
@@ -19,6 +18,13 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/nightlife', {
   useMongoClient: true
 });
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.use(session({
   saveUninitialized: true,
@@ -33,18 +39,9 @@ app.use(passport.session());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
 app.use('/search', search);
 
 // catch 404 and forward to error handler
